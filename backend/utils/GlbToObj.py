@@ -6,21 +6,20 @@ def glb_to_obj_lines(input_glb: str, output_txt: str) -> None:
     Конвертирует GLB в текстовый файл со строками v, vn, vt, f (как в OBJ).
     Все геометрические данные объединяются в один объект.
     """
-    # Загружаем как единый меш (все трансформации применены)
+    
     mesh = trimesh.load(input_glb, force='mesh')
 
     if mesh is None or len(mesh.vertices) == 0:
         print("Геометрия не найдена.")
         return
 
-    vertices = mesh.vertices                     # позиции (Nx3)
-    faces = mesh.faces                           # треугольники (Mx3)
-    normals = mesh.vertex_normals                # нормали (вычисляются, если отсутствуют)
+    vertices = mesh.vertices                  
+    faces = mesh.faces                        
+    normals = mesh.vertex_normals             
     texcoords = None
     if hasattr(mesh.visual, 'uv') and mesh.visual.uv is not None:
-        texcoords = mesh.visual.uv               # текстурные координаты (Nx2)
+        texcoords = mesh.visual.uv 
 
-    # Флаги наличия данных (длины должны совпадать с количеством вершин)
     has_vn = normals is not None and len(normals) == len(vertices)
     has_vt = texcoords is not None and len(texcoords) == len(vertices)
 
@@ -36,7 +35,7 @@ def glb_to_obj_lines(input_glb: str, output_txt: str) -> None:
         if has_vt:
             for t in texcoords:
                 f.write(f"vt {t[0]:.6f} {t[1]:.6f}\n")
-        # Полигоны (треугольники)
+        # Полигоны 
         for face in faces:
             i1, i2, i3 = face + 1               # индексы с 1
             if has_vn and has_vt:

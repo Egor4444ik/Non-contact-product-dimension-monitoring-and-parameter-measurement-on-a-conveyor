@@ -7,21 +7,18 @@ def are_coplanar(points, tol=1e-8):
     """Проверяет, лежат ли все точки в одной плоскости."""
     if points.shape[0] < 3:
         return True
-    # Берём три первые точки для построения плоскости
     p0 = points[0]
     p1 = points[1]
     p2 = points[2]
     normal = np.cross(p1 - p0, p2 - p0)
     norm = np.linalg.norm(normal)
     if norm < tol:
-        # первые три точки коллинеарны – ищем другие
         for i in range(3, points.shape[0]):
             normal = np.cross(points[i] - p0, p1 - p0)
             if np.linalg.norm(normal) > tol:
                 break
         else:
-            return True  # все точки на одной линии
-    # Проверяем, что все точки лежат в этой плоскости
+            return True
     for pt in points:
         if abs(np.dot(pt - p0, normal)) > tol:
             return False
@@ -46,12 +43,10 @@ def compute_volume(points, alpha_mult=28.0):
         return None, None
 
 def visualize_mesh(mesh, points=None):
-    """Показывает сетку и, опционально, облако точек."""
     geometries = [mesh]
     if points is not None:
         pcd = o3d.geometry.PointCloud()
         pcd.points = o3d.utility.Vector3dVector(points)
-        # Окрасим точки в красный цвет для наглядности
         pcd.paint_uniform_color([1, 0, 0])
         geometries.append(pcd)
     o3d.visualization.draw_geometries(geometries, window_name="Объект и сетка")
@@ -80,11 +75,6 @@ if __name__ == "__main__":
     for step in range(1, 101):
         points_subset = points[::step]
         try:
-            #for ALPHA_STEP in range(MIN_ALPHA*10, MAX_ALPHA*10):
-            #    alpha_mult = ALPHA_STEP/10
-            #    vol, mesh = compute_volume(points_subset, alpha_mult=alpha_mult)
-            #    if step == 1 and vol:
-            #        print(f"Наилучший объём при alpha mult {alpha_mult} равен: {vol}")
             vol, mesh = compute_volume(points_subset)
             visualize_mesh(mesh, points=points_subset)
             print(f"Объём ленточнфого конвейера при шаге {step} точек в общем количестве {len(points_subset)} точек: {vol}")

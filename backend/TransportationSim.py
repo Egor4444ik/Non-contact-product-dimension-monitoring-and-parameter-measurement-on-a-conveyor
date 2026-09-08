@@ -4,12 +4,12 @@ from matplotlib.animation import FuncAnimation
 
 import os
 
-from ObjectEditing import MultyDimentionObject
+from backend.ObjectEditing import MultyDimentionObject
 
 
 class Simulation:
-    def __init__(self, conveyor_point_step = 1, teapot_point_step = 1):
-        teapot_filename = "teapot.txt"
+    def __init__(self, conveyor_point_step = 1, product_point_step = 1):
+        product_filename = "barbell.txt"
         conveyor_filename = "ConveyorBeltAssemblyLine.txt"
         
         self.conveyor = MultyDimentionObject(conveyor_filename)
@@ -22,15 +22,15 @@ class Simulation:
         self.conveyor_center_x = np.mean(self.conveyor.points[:, 0])
         self.conveyor_center_z = np.mean(self.conveyor.points[:, 2])
         
-        teapot_target_size = np.ptp(self.conveyor.points, axis=0).max() / 10
+        product_target_size = np.ptp(self.conveyor.points, axis=0).max() / 10
 
-        self.teapot = MultyDimentionObject(teapot_filename)
-        self.teapot.points = self.teapot.points[::teapot_point_step]
-        self.teapot.rotate_points(90, axis="x")
-        self.teapot.object_scaling(teapot_target_size)
+        self.product = MultyDimentionObject(product_filename)
+        self.product.points = self.product.points[::product_point_step]
+        #self.product.rotate_points(90, axis="x")
+        self.product.object_scaling(product_target_size)
 
-        teapot_min_z = np.min(self.teapot.points[:, 2])
-        self.teapot_z_offset = np.max(self.conveyor.points[:, 2]) - teapot_min_z
+        product_min_z = np.min(self.product.points[:, 2])
+        self.product_z_offset = np.max(self.conveyor.points[:, 2]) - product_min_z
 
         self.fig = plt.figure(figsize=(10, 8))
         self.ax = self.fig.add_subplot(111, projection='3d')
@@ -40,9 +40,9 @@ class Simulation:
                         self.conveyor.points[:, 2],
                         color='gray', alpha = 0.4 , s=0.5, zorder=1)
 
-        self.teapot_scatter = self.ax.scatter(self.teapot.points[:, 0],
-                                              self.teapot.points[:, 1],
-                                              self.teapot.points[:, 2],
+        self.product_scatter = self.ax.scatter(self.product.points[:, 0],
+                                              self.product.points[:, 1],
+                                              self.product.points[:, 2],
                                               color='red', s=0.5, zorder=2)
 
         self.ax.set_xlim(np.min(self.conveyor.points[:, 0]),
@@ -69,12 +69,12 @@ class Simulation:
 
     def update(self, frame):
         y = self.y_positions[frame % len(self.y_positions)]
-        target = np.array([self.conveyor_center_x, y, self.teapot_z_offset])
-        self.teapot.replace(target)
-        self.teapot_scatter._offsets3d =   (self.teapot.points[:, 0],
-                                            self.teapot.points[:, 1],
-                                            self.teapot.points[:, 2])
-        return self.teapot_scatter,
+        target = np.array([self.conveyor_center_x, y, self.product_z_offset])
+        self.product.replace(target)
+        self.product_scatter._offsets3d =   (self.product.points[:, 0],
+                                            self.product.points[:, 1],
+                                            self.product.points[:, 2])
+        return self.product_scatter,
 
     def run(self, all_scene_rerender = False):
         ani = FuncAnimation(self.fig, self.update,
@@ -85,14 +85,14 @@ class Simulation:
     def save_frames(self, output_dir="frames", start_index=0):
         os.makedirs(output_dir, exist_ok=True)
         for i, y in enumerate(self.y_positions):
-            target = np.array([self.conveyor_center_x, y, self.teapot_z_offset])
-            self.teapot.replace(target)
+            target = np.array([self.conveyor_center_x, y, self.product_z_offset])
+            self.product.replace(target)
             filename = os.path.join(output_dir, f"frame_{i + start_index:04d}.txt")
-            all_points = np.vstack([self.teapot.points, self.conveyor.points])
+            all_points = np.vstack([self.product.points, self.conveyor.points])
             np.savetxt(filename, all_points, fmt='%.6f', delimiter=' ')
         print(f"Сохранено {len(self.y_positions)} кадров в папку '{output_dir}'")
 
 if __name__ == '__main__':
-    sim = Simulation(conveyor_point_step=20, teapot_point_step=10)
+    sim = Simulation(conveyor_point_step=20, product_point_step=1)
     sim.run(all_scene_rerender = False)
-    #sim.save_frames("Teapots_production")
+    sim.save_frames("products_production")

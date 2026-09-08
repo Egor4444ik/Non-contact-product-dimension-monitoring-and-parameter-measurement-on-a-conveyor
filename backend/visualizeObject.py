@@ -87,13 +87,13 @@ def render_convex_hull(points, hull, title="Выпуклая оболочка"):
     plt.legend()
     plt.show()
 
-def load_teapot(target_center, target_size):
+def load_product(target_center, target_size):
     """
     Загружает чайник, масштабирует его так, чтобы его размах стал равен target_size,
     и помещает центром в target_center.
     """
-    teapot_filename = "teapot.txt"
-    pts = read_points_from_file(teapot_filename)  # массив (N,3)
+    product_filename = "product.txt"
+    pts = read_points_from_file(product_filename)  # массив (N,3)
     if pts.shape[0] == 0:
         return None
 
@@ -116,10 +116,10 @@ def load_teapot(target_center, target_size):
 
     return scaled
 
-def visualize_with_teapot(points, teapot_points, title="Объект + чайник"):
+def visualize_with_product(points, product_points, title="Объект + чайник"):
     plotter = pyvista.Plotter(window_size=(1000, 700))
     plotter.add_points(points, color='blue', point_size=3, label='Объект (точки)')
-    plotter.add_points(teapot_points, color='red', point_size=5, label='Чайник (точки)')
+    plotter.add_points(product_points, color='red', point_size=5, label='Чайник (точки)')
     plotter.add_legend()
     plotter.add_text(title, font_size=14)
     plotter.set_background('white')
@@ -136,7 +136,7 @@ def visualize_1_obj(points, title="1 объект"):
     plotter.show(interactive=True)
 
 if __name__ == "__main__":
-    filename = "Teapots_production/frame_0060.txt"#"ConveyorBeltAssemblyLine.txt"#"teapot.txt"#
+    filename = "barbell.txt"#"products_production/frame_0060.txt"#"ConveyorBeltAssemblyLine.txt"#"product.txt"#
 
     points = read_points_from_file(filename)
     points = rotate_points(points, 270, axis='x')
@@ -160,14 +160,14 @@ if __name__ == "__main__":
     visualize_1_obj(points)
 
     """target_size = np.ptp(points, axis=0).max()/10
-    teapot = load_teapot(target_point, target_size)
-    teapot = rotate_points(teapot, 90, axis='x')
+    product = load_product(target_point, target_size)
+    product = rotate_points(product, 90, axis='x')
 
-    if teapot is None:
+    if product is None:
         print("Чайник не загружен. Выход.")
         exit()
 
-    all_points = np.vstack([teapot, points])
-    save_points(all_points, "TeapotOnConveyor.txt")
-    visualize_with_teapot(points, teapot,
+    all_points = np.vstack([product, points])
+    save_points(all_points, "productOnConveyor.txt")
+    visualize_with_product(points, product,
                           title=f"Объект + чайник на ({center_x:.2f}, {center_y:.2f}, {max_z:.2f})")"""
