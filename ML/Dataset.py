@@ -125,9 +125,10 @@ class PointCloudDataset(Dataset):
             labels = np.full(self.num_points, self.object_label, dtype=np.int64)
 
         elif r < 4 * self.prob_object / 5:
-            obj_ratio = np.random.uniform(0.2, 0.8)
-            num_obj = int(self.num_points * obj_ratio)
-            num_bg = self.num_points - num_obj
+            bg_ratio = np.random.uniform(0.1, 1.1)
+
+            num_bg = int(round(self.num_points * bg_ratio / (1.0 + bg_ratio)))
+            num_obj = self.num_points - num_bg
 
             obj_pts = sample_points(self.object_points, num_obj)
             bg_pts = generate_random_shape(num_bg)
